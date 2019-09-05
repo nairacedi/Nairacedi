@@ -1037,27 +1037,19 @@ bool ReadRawBlockFromDisk(std::vector<uint8_t>& block, const CBlockIndex* pindex
 
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
-    // int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
-    // // Force block reward to zero when right shift is undefined.
-    // if (halvings >= 64)
-    //     return 0;
-
-    CAmount nSubsidy = 50 * COIN;    
-    int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
-    // Force block reward to zero when right shift is undefined.
-    if (halvings >= 64)
-        return 0;
-
-    if (nHeight <17291)
-        nSubsidy = 347 * COIN;
-    else
-     {
-	nSubsidy >>= halvings;
-     }    
-
-    
-    // Subsidy is cut in half every 240,000 blocks which will occur approximately every 4 years.
-    
+    CAmount nSubsidy;
+    if (nHeight == 1 || nHeight == 21 || nHeight == 41 || nHeight == 61 || nHeight == 81 || nHeight == 101) {
+        nSubsidy = 1000 * COIN; 
+    } else {
+        if (nHeight <= 150) {
+            nSubsidy = 0.5 * COIN; 
+        } else {
+            float year = (nHeight / 152080) + 1; 
+            float halfing = year / 1.247266544310;
+            nSubsidy = (43 / halfing) * COIN;
+        }
+    }
+    printf("GetBlockSubsidy: height: %i - nSubsidy: %ld \n", nHeight, nSubsidy);
     return nSubsidy;
 }
 
